@@ -1,0 +1,11 @@
+.gradle
+.settings
+bin
+build
+/csv
+.classpath
+.project
+*.swp
+scannedfiles.json
+results.csv
+log

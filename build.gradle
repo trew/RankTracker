@@ -1,0 +1,61 @@
+plugins {
+	id 'net.researchgate.release' version '2.2.2'
+}
+
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'application'
+
+mainClassName = "se.samuelandersson.rocketleague.RankTracker"
+
+ext {
+	appName = 'Rocket League Rank Tracker'
+	slf4jVersion = '1.7.12'
+	logbackVersion = '1.1.3'
+	testngVersion = '6.9.4'
+	mockitoVersion = '1.10.19'
+	guavaVersion = '18.0'
+	jodaTimeVersion = '2.3'
+	gsonVersion = '1.7.2'
+	jcommanderVersion = '1.7'
+}
+
+repositories {
+	mavenLocal()
+	mavenCentral()
+	maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+	maven { url "https://oss.sonatype.org/content/repositories/releases/" }
+}
+
+eclipse {
+	classpath {
+		defaultOutputDir = file('build/eclipse')
+		downloadSources = true
+		downloadJavadoc = true
+	}
+}
+
+sourceSets {
+	main {
+		java {
+			srcDir "src/main/java"
+		}
+		resources {
+			srcDir "src/main/resources"
+		}
+	}
+}
+
+dependencies {
+	compile "com.google.guava:guava:$guavaVersion"
+	compile "joda-time:joda-time:$jodaTimeVersion"
+	compile "com.google.code.gson:gson:$gsonVersion"
+	compile "com.beust:jcommander:$jcommanderVersion"
+
+	compile "org.slf4j:slf4j-api:$slf4jVersion"
+	compile "ch.qos.logback:logback-core:$logbackVersion"
+	compile "ch.qos.logback:logback-classic:$logbackVersion"
+	
+	compile "org.testng:testng:$testngVersion"
+	compile "org.mockito:mockito-all:$mockitoVersion"
+}
