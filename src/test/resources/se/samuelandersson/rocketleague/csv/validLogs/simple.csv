@@ -1,2 +1,2 @@
-Date,Time,PlayList,DeltaPoints,RankPoints
-2015-01-01,00:00:00,solo-3v3,0,1000
+Date,Time,PlayList,Mu,Sigma,DeltaPoints,RankPoints
+2015-01-01,00:00:00,solo-3v3,51.0,2.6,0,1000

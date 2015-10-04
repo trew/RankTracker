@@ -10,7 +10,10 @@ public class MatchResultTest
   @Test
   public void testCreate() throws Exception
   {
-    assertNotNull(new MatchResult(new DateTime(), MatchResult.RANKED_1V1, 0, 0));
+    assertNotNull(new MatchResult(new DateTime(), MatchResult.RANKED_1V1, 0, 100));
+    assertNotNull(new MatchResult(new DateTime(), String.valueOf(MatchResult.RANKED_1V1), 0, 100));
+    assertNotNull(new MatchResult(new DateTime(), MatchResult.RANKED_2V2, 10, 200, 10.5f, 5.0f));
+    assertNotNull(new MatchResult(new DateTime(), String.valueOf(MatchResult.RANKED_2V2), 10, 200, 10.5f, 5.0f));
   }
 
   @Test
@@ -23,6 +26,12 @@ public class MatchResultTest
   public void testCreateNullPlayList() throws Exception
   {
     assertNotNull(new MatchResult(new DateTime(), (String) null, 0, 0));
+  }
+
+  @Test(expectedExceptions = NullPointerException.class)
+  public void testCreateNullPlayList2() throws Exception
+  {
+    assertNotNull(new MatchResult(new DateTime(), (String) null, 0, 0, 0, 0));
   }
 
   @Test(expectedExceptions = NullPointerException.class)
@@ -41,7 +50,7 @@ public class MatchResultTest
   public void testValues() throws Exception
   {
     DateTime dt = new DateTime("2015-01-02T10:11:12");
-    MatchResult mr = new MatchResult(dt, MatchResult.RANKED_1V1, 10, 800);
+    MatchResult mr = new MatchResult(dt, MatchResult.RANKED_1V1, 10, 800, 5.5f, 10.5f);
 
     assertEquals(mr.getDeltaPoints(), 10);
     assertEquals(mr.getPlayList(), MatchResult.RANKED_1V1);
@@ -49,6 +58,8 @@ public class MatchResultTest
     assertEquals(mr.getRankPostGame(), 810);
     assertEquals(mr.getTime(), dt);
     assertEquals(mr.isWin(), true);
+    assertEquals(mr.getSkillMean(), 5.5f);
+    assertEquals(mr.getSkillSigma(), 10.5f);
 
     mr = new MatchResult(dt, MatchResult.RANKED_1V1, -10, 800);
     assertEquals(mr.isWin(), false);
@@ -98,8 +109,8 @@ public class MatchResultTest
   public void testToString() throws Exception
   {
     DateTime dt = new DateTime("2015-01-01T10:11:12");
-    MatchResult mr = new MatchResult(dt, MatchResult.RANKED_1V1, 10, 100);
-    String expected = "2015-01-01 10:11:12,1v1,10,100";
+    MatchResult mr = new MatchResult(dt, MatchResult.RANKED_1V1, 10, 100,24.3f,5.3f);
+    String expected = "2015-01-01 10:11:12,1v1,24.3,5.3,10,100";
 
     assertEquals(mr.toString(), expected);
   }

@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -25,58 +24,24 @@ public class CSVParser implements Parser
 {
   private static final Logger log = LoggerFactory.getLogger(CSVParser.class);
 
+  private File file;
+
   @Override
   public SortedSet<MatchResult> parse(final File file)
   {
+    this.file = file;
+
     SortedSet<MatchResult> matchResult = new TreeSet<>();
-    Pattern csvPattern = CSVExporter.ROW_PATTERN;
-    Pattern headerPattern = CSVExporter.HEADER_PATTERN;
     try (BufferedReader br = new BufferedReader(new FileReader(file)))
     {
       String str = br.readLine();
-      if (!headerPattern.matcher(str).matches())
+      if (!parseHeader(str))
       {
-        log.warn(String.format("Invalid header in %s. File not parsed. \"%s\"", file.getName(), str));
         return matchResult;
       }
-
       while ((str = br.readLine()) != null)
       {
-        Matcher match = csvPattern.matcher(str);
-        if (match.matches())
-        {
-          String date = match.group("date");
-          String time = match.group("time");
-          try
-          {
-            DateTime dateTime = new DateTime(date + "T" + time);
-            String playlistStr = match.group("playlist");
-            try
-            {
-              int playlist = Integer.parseInt(playlistStr);
-              if (MatchResult.isValidPlayList(playlist))
-              {
-                playlistStr = MatchResult.getPlaylistName(playlist);
-              }
-            }
-            catch (NumberFormatException e)
-            { //Ignore
-            }
-            int delta = Integer.parseInt(match.group("delta"));
-            int points = Integer.parseInt(match.group("points"));
-
-            MatchResult result = new MatchResult(dateTime, playlistStr, delta, points);
-            matchResult.add(result);
-          }
-          catch (Exception e)
-          {
-            log.warn(String.format("Could not parse row in %s. \"%s\"", file.getName(), str));
-          }
-        }
-        else
-        {
-          log.warn(String.format("Invalid format in %s. Entry not used. \"%s\"", file.getName(), str));
-        }
+        parseResult(matchResult, str);
       }
     }
     catch (IOException e)
@@ -85,5 +50,102 @@ public class CSVParser implements Parser
     }
 
     return matchResult;
+  }
+
+  private boolean parseHeader(final String line)
+  {
+    if (!CSVExporter.HEADER_PATTERN.matcher(line).matches())
+    {
+      if (!CSVExporter.HEADER_WITH_MU_PATTERN.matcher(line).matches())
+      {
+        log.warn(String.format("Invalid header in %s. File not parsed. \"%s\"", file.getName(), line));
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  private void parseResult(SortedSet<MatchResult> matchResult, final String line)
+  {
+    Matcher regularMatch = CSVExporter.ROW_PATTERN.matcher(line);
+    Matcher muMatch = CSVExporter.ROW_WITH_MU_PATTERN.matcher(line);
+
+    if (regularMatch.matches())
+    {
+      parseResultWithoutMu(regularMatch, matchResult, line);
+    }
+    else if (muMatch.matches())
+    {
+      parseResultWithMu(muMatch, matchResult, line);
+    }
+    else
+    {
+      log.warn(String.format("Invalid format in %s. Entry not used. \"%s\"", file.getName(), line));
+    }
+  }
+
+  private void parseResultWithoutMu(Matcher match, SortedSet<MatchResult> matchResult, final String line)
+  {
+    String date = match.group("date");
+    String time = match.group("time");
+    try
+    {
+      DateTime dateTime = new DateTime(date + "T" + time);
+      String playlistStr = match.group("playlist");
+      try
+      {
+        int playlist = Integer.parseInt(playlistStr);
+        if (MatchResult.isValidPlayList(playlist))
+        {
+          playlistStr = MatchResult.getPlaylistName(playlist);
+        }
+      }
+      catch (NumberFormatException e)
+      { //Ignore
+      }
+      int delta = Integer.parseInt(match.group("delta"));
+      int points = Integer.parseInt(match.group("points"));
+
+      MatchResult result = new MatchResult(dateTime, playlistStr, delta, points);
+      matchResult.add(result);
+    }
+    catch (Exception e)
+    {
+      log.warn(String.format("Could not parse row in %s. \"%s\"", file.getName(), line));
+    }
+  }
+
+  private void parseResultWithMu(Matcher match, SortedSet<MatchResult> matchResult, final String line)
+  {
+    String date = match.group("date");
+    String time = match.group("time");
+    try
+    {
+      DateTime dateTime = new DateTime(date + "T" + time);
+      String playlistStr = match.group("playlist");
+      try
+      {
+        int playlist = Integer.parseInt(playlistStr);
+        if (MatchResult.isValidPlayList(playlist))
+        {
+          playlistStr = MatchResult.getPlaylistName(playlist);
+        }
+      }
+      catch (NumberFormatException e)
+      { //Ignore
+      }
+      float mu = match.group("mu") == null ? -1 : Float.parseFloat(match.group("mu"));
+      float sigma = match.group("sigma") == null ? -1 : Float.parseFloat(match.group("sigma"));
+      int delta = Integer.parseInt(match.group("delta"));
+      int points = Integer.parseInt(match.group("points"));
+
+      MatchResult result = new MatchResult(dateTime, playlistStr, delta, points, mu, sigma);
+      matchResult.add(result);
+    }
+    catch (Exception e)
+    {
+      log.warn(String.format("Could not parse row in %s. \"%s\"", file.getName(), line));
+    }
   }
 }

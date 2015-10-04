@@ -18,6 +18,19 @@ public class CSVParserTest
   {
     SortedSet<MatchResult> results = parser.parse(LogFileHelper.getValidCsvLogFile("log.csv"));
     assertEquals(results.size(), 2);
+    assertEquals(results.first().getSkillMean(), -1f);
+    assertEquals(results.first().getSkillSigma(), -1f);
+  }
+
+  @Test
+  public void testParseMu() throws Exception
+  {
+    SortedSet<MatchResult> results = parser.parse(LogFileHelper.getValidCsvLogFile("logWithMu.csv"));
+    assertEquals(results.size(), 2);
+    assertEquals(results.first().getSkillMean(), 50f);
+    assertEquals(results.first().getSkillSigma(), 2.5f);
+    assertEquals(results.last().getSkillMean(), 49.9f);
+    assertEquals(results.last().getSkillSigma(), 2.49f);
   }
 
   @Test

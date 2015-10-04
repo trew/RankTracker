@@ -95,11 +95,14 @@ public class LogFileParser implements Parser
     boolean minus = !match.group("minus").isEmpty();
 
     int deltaPoints = 0, rankPoints = 0, playList = 0;
+    float mu = -1f, sigma = -1f;
     try
     {
       deltaPoints = Integer.parseInt(match.group("delta")) * (minus ? -1 : 1);
       rankPoints = Integer.parseInt(match.group("points"));
       playList = Integer.parseInt(match.group("playlist"));
+      mu = Float.parseFloat(match.group("mu"));
+      sigma = Float.parseFloat(match.group("sigma"));
     }
     catch (NumberFormatException e)
     {
@@ -112,7 +115,7 @@ public class LogFileParser implements Parser
       return null;
     }
 
-    return new MatchResult(time, playList, deltaPoints, rankPoints);
+    return new MatchResult(time, playList, deltaPoints, rankPoints, mu, sigma);
   }
 
   /**

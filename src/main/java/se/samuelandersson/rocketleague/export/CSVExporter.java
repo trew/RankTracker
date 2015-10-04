@@ -40,8 +40,11 @@ public class CSVExporter implements Exporter
   public static final String SUFFIX = "csv";
 
   public static final String HEADER = "Date,Time,PlayList,DeltaPoints,RankPoints";
+  public static final String HEADER_WITH_MU = "Date,Time,PlayList,Mu,Sigma,DeltaPoints,RankPoints";
   public static final Pattern ROW_PATTERN = Pattern.compile("(?<date>[^,]+),(?<time>[^,]+),(?<playlist>[^,]+),(?<delta>[^,]+),(?<points>[^,]+)");
+  public static final Pattern ROW_WITH_MU_PATTERN = Pattern.compile("(?<date>[^,]+),(?<time>[^,]+),(?<playlist>[^,]+),(?<mu>[^,]+),(?<sigma>[^,]+),(?<delta>[^,]+),(?<points>[^,]+)");
   public static final Pattern HEADER_PATTERN = Pattern.compile(HEADER);
+  public static final Pattern HEADER_WITH_MU_PATTERN = Pattern.compile(HEADER_WITH_MU);
 
   @Override
   public void export(final MatchResultsWrapper parser, final File file) throws IOException
@@ -85,16 +88,18 @@ public class CSVExporter implements Exporter
   private static String toCSVString(final SortedSet<MatchResult> results)
   {
     StringBuilder sb = new StringBuilder();
-    sb.append(HEADER);
+    sb.append(HEADER_WITH_MU);
     for (MatchResult result : results)
     {
       sb.append(System.lineSeparator());
       String date = result.getTime().toString("YYYY-MM-dd");
       String time = result.getTime().toString("HH:mm:ss");
-      sb.append(String.format("%s,%s,%s,%s,%s",
+      sb.append(String.format("%s,%s,%s,%s,%s,%s,%s",
                               date,
                               time,
                               MatchResult.getPlaylistName(result.getPlayList()),
+                              result.getSkillMean(),
+                              result.getSkillSigma(),
                               result.getDeltaPoints(),
                               result.getRankPreGame()));
     }

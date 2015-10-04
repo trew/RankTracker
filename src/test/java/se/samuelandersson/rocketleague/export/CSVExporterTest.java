@@ -36,11 +36,13 @@ public class CSVExporterTest
     results.add(new MatchResult(new DateTime(date + "T" + time),
                                 MatchResult.getPlaylistName(MatchResult.SOLO_RANKED_3V3),
                                 10,
-                                800));
+                                800,
+                                50.1f,
+                                2.48f));
     String exported = export.toString(results);
 
-    String expected = CSVExporter.HEADER + System.lineSeparator();
-    expected += "2015-01-02,10:11:12,solo-3v3,10,800";
+    String expected = CSVExporter.HEADER_WITH_MU + System.lineSeparator();
+    expected += "2015-01-02,10:11:12,solo-3v3,50.1,2.48,10,800";
 
     assertEquals(exported, expected);
   }
@@ -50,8 +52,8 @@ public class CSVExporterTest
   {
     MatchResultsWrapper wrapper = new MatchResultsWrapper(LogFileHelper.getValidCsvLogFile("simple.csv"), parser);
 
-    String expected = CSVExporter.HEADER + System.lineSeparator();
-    expected += "2015-01-01,00:00:00,solo-3v3,0,1000";
+    String expected = CSVExporter.HEADER_WITH_MU + System.lineSeparator();
+    expected += "2015-01-01,00:00:00,solo-3v3,51.0,2.6,0,1000";
 
     assertEquals(export.toString(wrapper), expected);
   }
@@ -61,6 +63,8 @@ public class CSVExporterTest
   {
     String header = "Date,Time,PlayList,DeltaPoints,RankPoints";
     assertTrue(CSVExporter.HEADER_PATTERN.matcher(header).matches());
+    header = "Date,Time,PlayList,Mu,Sigma,DeltaPoints,RankPoints";
+    assertTrue(CSVExporter.HEADER_WITH_MU_PATTERN.matcher(header).matches());
   }
 
   @Test
@@ -68,6 +72,10 @@ public class CSVExporterTest
   {
     Pattern pattern = CSVExporter.ROW_PATTERN;
     String newRow = "2015-01-01,00:00:00,1v1,1,1000";
+    assertTrue(pattern.matcher(newRow).matches());
+
+    pattern = CSVExporter.ROW_WITH_MU_PATTERN;
+    newRow = "2015-01-01,00:00:00,1v1,50.0,2.5,1,1000";
     assertTrue(pattern.matcher(newRow).matches());
   }
 
@@ -77,8 +85,8 @@ public class CSVExporterTest
     File file = File.createTempFile("test-parser", "csv");
     MatchResultsWrapper wrapper = new MatchResultsWrapper(LogFileHelper.getValidCsvLogFile("simple.csv"), parser);
 
-    String expected = CSVExporter.HEADER + System.lineSeparator();
-    expected += "2015-01-01,00:00:00,solo-3v3,0,1000";
+    String expected = CSVExporter.HEADER_WITH_MU + System.lineSeparator();
+    expected += "2015-01-01,00:00:00,solo-3v3,51.0,2.6,0,1000";
 
     export.export(wrapper, file);
 
@@ -99,9 +107,11 @@ public class CSVExporterTest
     results.add(new MatchResult(new DateTime(date + "T" + time),
                                 MatchResult.getPlaylistName(MatchResult.SOLO_RANKED_3V3),
                                 10,
-                                800));
-    String expected = CSVExporter.HEADER + System.lineSeparator();
-    expected += "2015-01-02,10:11:12,solo-3v3,10,800";
+                                800,
+                                25.6f,
+                                3.2f));
+    String expected = CSVExporter.HEADER_WITH_MU + System.lineSeparator();
+    expected += "2015-01-02,10:11:12,solo-3v3,25.6,3.2,10,800";
 
     export.export(results, file);
     String actual = Joiner.on(System.lineSeparator()).join(Files.readAllLines(file.toPath(), Charset.defaultCharset()));

@@ -3,6 +3,7 @@ package se.samuelandersson.rocketleague.parser;
 import static org.testng.Assert.*;
 
 import java.io.File;
+import java.util.Iterator;
 import java.util.SortedSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -148,7 +149,12 @@ public class LogFileParserTest
     LogFileParser parser = getParser();
     String matchResultRow = "[1004.89] RankPoints: ClientSetSkill Playlist=0 Mu=28.6374 Sigma=2.4856 DeltaRankPoints=-10 RankPoints=735";
     Matcher matcher = getMatcher(matchResultRow);
-    assertEquals(parser.createMatchResult(matcher).getPlayList(), MatchResult.UNRANKED);
+    MatchResult result = parser.createMatchResult(matcher);
+    assertEquals(result.getPlayList(), MatchResult.UNRANKED);
+    assertEquals(result.getSkillMean(), 28.6374f);
+    assertEquals(result.getSkillSigma(), 2.4856f);
+    assertEquals(result.getDeltaPoints(), -10);
+    assertEquals(result.getRankPreGame(), 735);
   }
 
   @Test(groups = "createMatchResult", expectedExceptions = NullPointerException.class)
@@ -170,6 +176,8 @@ public class LogFileParserTest
       assertEquals(result.getPlayList(), 10);
       assertEquals(result.getDeltaPoints(), -10);
       assertEquals(result.getRankPreGame(), 735);
+      assertEquals(result.getSkillMean(), 28.6374f);
+      assertEquals(result.getSkillSigma(), 2.4856f);
       MutableDateTime expected = getLogStart().toMutableDateTime();
       expected.addSeconds(1004);
       expected.addMillis(89);
@@ -187,6 +195,8 @@ public class LogFileParserTest
       assertEquals(result.getPlayList(), 11);
       assertEquals(result.getDeltaPoints(), 10);
       assertEquals(result.getRankPreGame(), 745);
+      assertEquals(result.getSkillMean(), 28.6374f);
+      assertEquals(result.getSkillSigma(), 2.4856f);
       MutableDateTime expected = getLogStart().toMutableDateTime();
       expected.addSeconds(1000);
       expected.addMillis(49);
@@ -213,6 +223,16 @@ public class LogFileParserTest
     assertNull(parser.createMatchResult(getMatcher(badRank)));
   }
 
+  private void assertMatchResult(MatchResult result, int playlist, float mu, float sigma, int delta, int points)
+  {
+    assertEquals(result.getPlayList(), playlist);
+    assertEquals(result.getSkillMean(), mu);
+    assertEquals(result.getSkillSigma(), sigma);
+    assertEquals(result.getDeltaPoints(), delta);
+    assertEquals(result.getRankPreGame(), points);
+    assertEquals(result.getRankPostGame(), points + delta);
+  }
+
   @Test(groups = "parse")
   public void testParse() throws Exception
   {
@@ -220,6 +240,15 @@ public class LogFileParserTest
     File ranked = LogFileHelper.getValidRLLogFile("ranked.log");
     SortedSet<MatchResult> result = parser.parse(ranked);
     assertEquals(result.size(), 8);
+    Iterator<MatchResult> it = result.iterator();
+    assertMatchResult(it.next(), 10, 28.6374f, 2.4856f, -10, 735);
+    assertMatchResult(it.next(), 10, 29.1077f, 2.4849f, 6, 725);
+    assertMatchResult(it.next(), 10, 29.6408f, 2.4864f, 7, 731);
+    assertMatchResult(it.next(), 11, 40.6359f, 2.4849f, 8, 711);
+    assertMatchResult(it.next(), 12, 54.5989f, 2.4850f, 8, 915);
+    assertMatchResult(it.next(), 12, 54.1434f, 2.4849f, -8, 923);
+    assertMatchResult(it.next(), 12, 54.5970f, 2.4849f, 8, 915);
+    assertMatchResult(it.next(), 13, 54.5970f, 2.4849f, 8, 515);
 
     parser = getParserWithoutLogStart();
     File unranked = LogFileHelper.getValidRLLogFile("unranked.log");

@@ -57,7 +57,6 @@ public class ScanTask implements Task
     // read all existing match results from csv files
     File[] csvFiles = csvFolder.listFiles();
     final SortedSet<MatchResult> results = new TreeSet<>();
-    readCsvFiles(csvFiles, results);
 
     // determine which log files that should be parsed.
     File[] logFiles = logFolder.listFiles();
@@ -65,6 +64,9 @@ public class ScanTask implements Task
 
     // Set of files determined, parse them and add the results to the master list.
     parseLogFiles(filesToParse, results);
+
+    // Read the Csv files afterwards. Any duplicates found here will be ignored.
+    readCsvFiles(csvFiles, results);
 
     // Split the list into multiple list and export them to different files
     Map<Integer, SortedSet<MatchResult>> splitResults = RankTrackerUtils.separateResults(results);
@@ -186,7 +188,8 @@ public class ScanTask implements Task
 
       log.info("Parsing {}", file);
 
-      results.addAll(new MatchResultsWrapper(file, new LogFileParser()).getResults());
+      SortedSet<MatchResult> matchResults = new MatchResultsWrapper(file, new LogFileParser()).getResults();
+      results.addAll(matchResults);
     }
   }
 

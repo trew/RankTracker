@@ -21,11 +21,13 @@ public class MatchResult implements Comparable<MatchResult>
   private int playList;
   private int rankPreGame;
   private int deltaPoints;
+  private float skillMean;
+  private float skillSigma;
   private DateTime time;
 
   public MatchResult(DateTime time, int playList, int deltaPoints, int rankPreGame)
   {
-    init(time, playList, deltaPoints, rankPreGame);
+    init(time, playList, deltaPoints, rankPreGame, -1, -1);
   }
 
   public MatchResult(DateTime time, String playList, int deltaPoints, int rankPreGame)
@@ -35,10 +37,25 @@ public class MatchResult implements Comparable<MatchResult>
       throw new NullPointerException("playList");
     }
 
-    init(time, MatchResult.getPlaylist(playList), deltaPoints, rankPreGame);
+    init(time, MatchResult.getPlaylist(playList), deltaPoints, rankPreGame, -1, -1);
   }
 
-  private void init(DateTime time, int playList, int deltaPoints, int rankPreGame)
+  public MatchResult(DateTime time, int playList, int deltaPoints, int rankPreGame, float skillMean, float skillSigma)
+  {
+    init(time, playList, deltaPoints, rankPreGame, skillMean, skillSigma);
+  }
+
+  public MatchResult(DateTime time, String playList, int deltaPoints, int rankPreGame, float skillMean, float skillSigma)
+  {
+    if (playList == null)
+    {
+      throw new NullPointerException("playList");
+    }
+
+    init(time, MatchResult.getPlaylist(playList), deltaPoints, rankPreGame, skillMean, skillSigma);
+  }
+
+  private void init(DateTime time, int playList, int deltaPoints, int rankPreGame, float skillMean, float skillSigma)
   {
     if (time == null)
     {
@@ -60,6 +77,8 @@ public class MatchResult implements Comparable<MatchResult>
     this.playList = playList;
     this.deltaPoints = deltaPoints;
     this.rankPreGame = rankPreGame;
+    this.skillMean = skillMean;
+    this.skillSigma = skillSigma;
   }
 
   /**
@@ -200,6 +219,26 @@ public class MatchResult implements Comparable<MatchResult>
   }
 
   /**
+   * Returns the skill mean value for the player in the match.
+   * 
+   * @return the skill mean value for the player in the match.
+   */
+  public float getSkillMean()
+  {
+    return skillMean;
+  }
+
+  /**
+   * Returns the skill standard deviation (or sigma) for the player in the match.
+   * 
+   * @return the skill standard deviation (or sigma) for the player in the match.
+   */
+  public float getSkillSigma()
+  {
+    return skillSigma;
+  }
+
+  /**
    * Returns true if {@link #getDeltaPoints()} is over 0. This means it's not possible to detect a win where the player
    * got 0 points.
    * 
@@ -213,9 +252,11 @@ public class MatchResult implements Comparable<MatchResult>
   @Override
   public String toString()
   {
-    return String.format("%s,%s,%s,%s",
+    return String.format("%s,%s,%s,%s,%s,%s",
                          getTime().toString("YYYY-MM-dd HH:mm:ss"),
                          getPlaylistName(getPlayList()),
+                         getSkillMean(),
+                         getSkillSigma(),
                          getDeltaPoints(),
                          getRankPreGame());
   }
@@ -228,7 +269,9 @@ public class MatchResult implements Comparable<MatchResult>
     result = prime * result + deltaPoints;
     result = prime * result + playList;
     result = prime * result + rankPreGame;
-    result = prime * result + time.hashCode();
+    result = prime * result + Float.floatToIntBits(skillMean);
+    result = prime * result + Float.floatToIntBits(skillSigma);
+    result = prime * result + ((time == null) ? 0 : time.hashCode());
     return result;
   }
 
@@ -242,7 +285,13 @@ public class MatchResult implements Comparable<MatchResult>
     if (deltaPoints != other.deltaPoints) return false;
     if (playList != other.playList) return false;
     if (rankPreGame != other.rankPreGame) return false;
-    if (!time.equals(other.time)) return false;
+    if (Float.floatToIntBits(skillMean) != Float.floatToIntBits(other.skillMean)) return false;
+    if (Float.floatToIntBits(skillSigma) != Float.floatToIntBits(other.skillSigma)) return false;
+    if (time == null)
+    {
+      if (other.time != null) return false;
+    }
+    else if (!time.equals(other.time)) return false;
     return true;
   }
 
