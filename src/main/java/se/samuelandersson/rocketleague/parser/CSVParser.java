@@ -54,7 +54,7 @@ public class CSVParser implements Parser
             try
             {
               int playlist = Integer.parseInt(playlistStr);
-              if (MatchResult.isRankedPlayList(playlist))
+              if (MatchResult.isValidPlayList(playlist))
               {
                 playlistStr = MatchResult.getPlaylistName(playlist);
               }

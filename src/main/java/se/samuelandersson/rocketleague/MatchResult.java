@@ -3,14 +3,16 @@ package se.samuelandersson.rocketleague;
 import org.joda.time.DateTime;
 
 /**
- * This class provides data about the conclusion of a ranked match, such as points gained/lossed, which playlist and the
- * ranked points at the time of the match. It implements the {@link Comparable} interface, which allows it to be sorted
- * using the {@link DateTime} property of the result.
+ * This class provides data about the conclusion of a match, such as points gained/lossed, which playlist and the points
+ * at the time of the match. It implements the {@link Comparable} interface, which allows it to be sorted
+ * using the {@link DateTime} property of the result. Worth noting regarding the unranked playlist is that it is the
+ * same playlist for all four modes and rating changes applies across all of them.
  * 
  * @author Samuel Andersson
  */
 public class MatchResult implements Comparable<MatchResult>
 {
+  public static final int UNRANKED = 0;
   public static final int RANKED_1V1 = 10;
   public static final int RANKED_2V2 = 11;
   public static final int SOLO_RANKED_3V3 = 12;
@@ -50,9 +52,9 @@ public class MatchResult implements Comparable<MatchResult>
                              time.getMinuteOfHour(),
                              time.getSecondOfMinute());
 
-    if (!isRankedPlayList(playList))
+    if (!isValidPlayList(playList))
     {
-      throw new IllegalArgumentException(String.format("playlist must be a ranked playlist: %s", playList));
+      throw new IllegalArgumentException(String.format("playlist must be a valid playlist: %s", playList));
     }
 
     this.playList = playList;
@@ -88,7 +90,8 @@ public class MatchResult implements Comparable<MatchResult>
    * 10 = 1v1
    * 11 = 2v2
    * 12 = solo-3v3
-   * 13 = 3v3.
+   * 13 = 3v3
+   *  0 = unranked
    * </pre>
    * 
    * @param playlist the playlist to get a readable value from.
@@ -106,20 +109,22 @@ public class MatchResult implements Comparable<MatchResult>
         return "solo-3v3";
       case RANKED_3V3:
         return "3v3";
+      case UNRANKED:
+        return "unranked";
     }
 
     return String.valueOf(playList);
   }
 
   /**
-   * Returns true if the provided playlist number is a valid ranked playlist.
+   * Returns true if the provided playlist number is a valid playlist.
    * 
    * @param playlist the playlist to check.
-   * @return true if the provided playlist number is a valid ranked playlist.
+   * @return true if the provided playlist number is a valid playlist.
    */
-  public static boolean isRankedPlayList(final int playlist)
+  public static boolean isValidPlayList(final int playlist)
   {
-    return playlist >= RANKED_1V1 && playlist <= RANKED_3V3;
+    return (playlist >= RANKED_1V1 && playlist <= RANKED_3V3) || playlist == UNRANKED;
   }
 
   /**
@@ -149,6 +154,8 @@ public class MatchResult implements Comparable<MatchResult>
       case "3v3":
       case "Ranked 3v3":
         return RANKED_3V3;
+      case "unranked":
+        return UNRANKED;
       default:
         try
         {

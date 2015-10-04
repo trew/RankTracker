@@ -107,7 +107,7 @@ public class LogFileParser implements Parser
       return null;
     }
 
-    if (!MatchResult.isRankedPlayList(playList))
+    if (!MatchResult.isValidPlayList(playList))
     {
       return null;
     }

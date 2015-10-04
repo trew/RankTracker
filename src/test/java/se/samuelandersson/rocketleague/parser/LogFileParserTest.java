@@ -143,12 +143,12 @@ public class LogFileParserTest
   }
 
   @Test
-  public void testCreateMatchResultNotRankedPlayList() throws Exception
+  public void testCreateMatchResultUnrankedPlayList() throws Exception
   {
     LogFileParser parser = getParser();
     String matchResultRow = "[1004.89] RankPoints: ClientSetSkill Playlist=0 Mu=28.6374 Sigma=2.4856 DeltaRankPoints=-10 RankPoints=735";
     Matcher matcher = getMatcher(matchResultRow);
-    assertNull(parser.createMatchResult(matcher));
+    assertEquals(parser.createMatchResult(matcher).getPlayList(), MatchResult.UNRANKED);
   }
 
   @Test(groups = "createMatchResult", expectedExceptions = NullPointerException.class)
@@ -224,12 +224,12 @@ public class LogFileParserTest
     parser = getParserWithoutLogStart();
     File unranked = LogFileHelper.getValidRLLogFile("unranked.log");
     result = parser.parse(unranked);
-    assertEquals(result.size(), 0);
+    assertEquals(result.size(), 4);
 
     parser = getParserWithoutLogStart();
     File mixed = LogFileHelper.getValidRLLogFile("mixed.log");
     result = parser.parse(mixed);
-    assertEquals(result.size(), 3);
+    assertEquals(result.size(), 7);
 
     parser = getParserWithoutLogStart();
     File empty = LogFileHelper.getValidRLLogFile("empty.log");

@@ -125,7 +125,8 @@ public class MatchResultTest
     assertEquals(MatchResult.getPlaylistName(MatchResult.RANKED_2V2), "2v2");
     assertEquals(MatchResult.getPlaylistName(MatchResult.RANKED_3V3), "3v3");
     assertEquals(MatchResult.getPlaylistName(MatchResult.SOLO_RANKED_3V3), "solo-3v3");
-    assertEquals(MatchResult.getPlaylistName(0), "0");
+    assertEquals(MatchResult.getPlaylistName(MatchResult.UNRANKED), "unranked");
+    assertEquals(MatchResult.getPlaylistName(1), "1");
     assertEquals(MatchResult.getPlaylistName(-1), "-1");
   }
 
@@ -144,6 +145,8 @@ public class MatchResultTest
     assertEquals(MatchResult.getPlaylist("solo-3v3"), MatchResult.SOLO_RANKED_3V3);
     assertEquals(MatchResult.getPlaylist("Solo Ranked 3v3"), MatchResult.SOLO_RANKED_3V3);
 
+    assertEquals(MatchResult.getPlaylist("unranked"), MatchResult.UNRANKED);
+
     assertEquals(MatchResult.getPlaylist("50"), 50);
     assertEquals(MatchResult.getPlaylist("wtf"), -1);
     assertEquals(MatchResult.getPlaylist(null), -1);
@@ -152,13 +155,14 @@ public class MatchResultTest
   @Test
   public void testIsRankedPlayList()
   {
-    assertTrue(MatchResult.isRankedPlayList(MatchResult.RANKED_1V1));
-    assertTrue(MatchResult.isRankedPlayList(MatchResult.RANKED_2V2));
-    assertTrue(MatchResult.isRankedPlayList(MatchResult.SOLO_RANKED_3V3));
-    assertTrue(MatchResult.isRankedPlayList(MatchResult.RANKED_3V3));
+    assertTrue(MatchResult.isValidPlayList(MatchResult.RANKED_1V1));
+    assertTrue(MatchResult.isValidPlayList(MatchResult.RANKED_2V2));
+    assertTrue(MatchResult.isValidPlayList(MatchResult.SOLO_RANKED_3V3));
+    assertTrue(MatchResult.isValidPlayList(MatchResult.RANKED_3V3));
+    assertTrue(MatchResult.isValidPlayList(MatchResult.UNRANKED));
 
-    assertFalse(MatchResult.isRankedPlayList(9));
-    assertFalse(MatchResult.isRankedPlayList(-1));
-    assertFalse(MatchResult.isRankedPlayList(15));
+    assertFalse(MatchResult.isValidPlayList(9));
+    assertFalse(MatchResult.isValidPlayList(-1));
+    assertFalse(MatchResult.isValidPlayList(15));
   }
 }

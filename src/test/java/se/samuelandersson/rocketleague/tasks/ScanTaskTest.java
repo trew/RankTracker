@@ -164,7 +164,7 @@ public class ScanTaskTest
 
     ScanTask.parseLogFiles(files, results);
 
-    assertEquals(results.size(), 11);
+    assertEquals(results.size(), 15);
 
     Files.delete(path1);
     Files.delete(path2);

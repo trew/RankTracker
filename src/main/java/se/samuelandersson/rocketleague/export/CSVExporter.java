@@ -22,7 +22,8 @@ import se.samuelandersson.rocketleague.MatchResult;
  * <pre>
  *        Date = Date of match.
  *        Time = Time of match.
- *    PlayList = A number indicating the Playlist searched. A value between 10-13. 
+ *    PlayList = A number indicating the Playlist searched. A value between 10-13 or 0.
+ *                  0 = Unranked
  *                 10 = Ranked 1v1
  *                 11 = Ranked 2v2
  *                 12 = Solo Ranked 3v3
