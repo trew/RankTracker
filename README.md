@@ -1,3 +1,6 @@
+### NOTE: This tool does *not work* anymore. 
+That logs no longer include the ranks/sigma/mu data. That was changed in [Rocket League v1.08](http://rocketleague.psyonix.com/patch-notes/).
+
 # RankTracker
 
 RankTracker is a tool for tracking your Rocket League rankings over time. It scans the Rocket League log files and saves the match results to CSV files. Rocket League creates a new log file everytime the game is started, and keeps a few as backups.
